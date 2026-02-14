@@ -15,7 +15,7 @@
 //! If transfer of an object fails, it will be simply ignored. We could
 //! later implement some kind of retry logic.
 
-use futures_util::{StreamExt, stream};
+use futures_util::{stream, StreamExt};
 use indicatif::{MultiProgress, ProgressBar};
 use reqwest::ClientBuilder;
 
@@ -25,7 +25,7 @@ use crate::timeout::{TryTimeoutExt, TryTimeoutFutureExt};
 use crate::traits::{Diff, Key, Metadata, SnapshotStorage, SourceStorage, TargetStorage};
 use crate::utils::{create_logger, spinner};
 
-use iter_set::{Inclusion, classify_by};
+use iter_set::{classify_by, Inclusion};
 use rand::prelude::*;
 use slog::{debug, info, o, warn};
 

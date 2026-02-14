@@ -32,6 +32,8 @@ pub struct CratesIo {
     pub crates_base: String,
     #[structopt(long)]
     pub debug: bool,
+    #[structopt(long)]
+    pub cached_zip: Option<String>,
 }
 
 #[async_trait]
@@ -45,9 +47,26 @@ impl SnapshotStorage<SnapshotMeta> for CratesIo {
         let progress = mission.progress;
         let client = mission.client;
 
-        info!(logger, "fetching crates.io-index zip...");
-        progress.set_message("fetching crates.io-index zip...");
-        let data = client.get(&self.zip_master).send().await?.bytes().await?;
+        let data = if let Some(cached_zip) = &self.cached_zip {
+            info!(
+                logger,
+                "using crates.io-index zip from cache({})...", cached_zip
+            );
+            let mut vec = Vec::new();
+            let mut f = std::fs::File::open(cached_zip)?;
+            f.read_to_end(&mut vec)?;
+            vec
+        } else {
+            info!(logger, "fetching crates.io-index zip...");
+            progress.set_message("fetching crates.io-index zip...");
+            client
+                .get(&self.zip_master)
+                .send()
+                .await?
+                .bytes()
+                .await?
+                .to_vec()
+        };
         let mut data = std::io::Cursor::new(data);
         let mut buf = vec![];
         let mut snapshot = vec![];

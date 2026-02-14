@@ -173,11 +173,14 @@ fn main() {
                 );
             }
             Source::CratesIo(source) => {
+                let pipe = |source| {
+                    stream_pipe::ByteStreamPipe::new(source, buffer_path.clone().unwrap(), false)
+                };
                 transfer!(
                     opts,
                     source,
                     transfer_config,
-                    index_checksum_bytes_pipe!(buffer_path, prefix, false, 999)
+                    pipe //index_checksum_bytes_pipe!(buffer_path, prefix, false, 999)
                 );
             }
             Source::Conda(config) => {
@@ -315,11 +318,14 @@ fn main() {
                 transfer!(opts, indexed, transfer_config, id_pipe!());
             }
             Source::Rustup(source) => {
+                let pipe = |source| {
+                    stream_pipe::ByteStreamPipe::new(source, buffer_path.clone().unwrap(), false)
+                };
                 transfer!(
                     opts,
                     source,
                     transfer_config,
-                    index_bytes_pipe!(buffer_path, prefix, false, 999)
+                    pipe //index_bytes_pipe!(buffer_path, prefix, false, 999)
                 );
             }
             Source::Elan(source) => {
